@@ -7,14 +7,21 @@ from pyrogram import types as t
 
 @Client.on_message(filters.command(["surat"]) & ~filters.me)
 async def kirim_surat(c: Client, m: t.Message):
-    message = utils.get_text(m.text or m.caption)
-    media_ids = []
+    abs_msg = utils.get_absolute_message(m)
+    msg_text = utils.get_text(m.text or m.caption or m.sticker.emoji)
+    user = m.from_user
 
+    if not msg_text:
+        # if msg text or caption not included use the replied msg instead
+        msg_text = utils.get_text(abs_msg.text or abs_msg.caption or abs_msg.sticker.emoji)
+        user = abs_msg.from_user
+
+    media_ids = []
     status = ""
     text = ""
 
-    if message:
-        status = f'"{message}"\n\n'
+    if msg_text:
+        status = f'"{msg_text}"\n\n'
 
     m_state = await m.reply("__Tunggu ya...__")
 
@@ -25,13 +32,13 @@ async def kirim_surat(c: Client, m: t.Message):
             )
 
         dl_text = "__Pesan media terdeteksi, sedang mengunduh...__"
-        await m_state.edit(dl_text)
+        await m_state.edit(f"{dl_text}\n\n0%")
 
         try:
 
             async def progress(current, total, text):
                 percent = current * 100 / total
-                if percent % 50 == 0:
+                if percent % 20 == 0:
                     await m_state.edit(f"{text}\n\n{percent:.1f}%")
 
             byte_obj = await c.download_media(
@@ -54,10 +61,8 @@ async def kirim_surat(c: Client, m: t.Message):
 
         media_ids.append(data["id"])
 
-    if not message and not utils.is_media(m):
+    if not msg_text and not m.reply_to_message and not utils.is_media(m):
         return await m_state.edit("Pesan /surat tidak boleh kosong!")
-
-    user = m.from_user
 
     status += f"- {utils.get_full_name(user)} | https://{user.username}.t.me"
 
@@ -68,8 +73,8 @@ async def kirim_surat(c: Client, m: t.Message):
     if is_error:
         return await m_state.edit(data["error"])
 
-    if message:
-        text = f'**"{message}"**\n\n'
+    if msg_text:
+        text = f'**"{msg_text}"**\n\n'
 
     text += f"__- {utils.get_full_name(user)} (@{user.username})__\n\n"
     text += data["url"]

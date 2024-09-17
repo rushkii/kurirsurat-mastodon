@@ -7,10 +7,12 @@ def get_text(text: str | None):
 
     split = text.split()
 
-    if len(split) < 2:
+    if len(split) == 1 and "/" in split[0]:
         return ""
+    elif len(split) > 1 and "/" in split[0]:
+        return text.replace(f"{split[0]} ", "")
 
-    return text.replace(f"{split[0]} ", "")
+    return text
 
 
 def get_full_name(user: t.User):
@@ -47,11 +49,14 @@ def is_media_met_requirements(m: t.Message):
 
     return (
         (msg.photo and msg.photo.file_size <= MB_16)
+        or (msg.sticker and msg.sticker.file_size <= MB_16)
         or (msg.animation and msg.animation.file_size <= MB_16)
         or (msg.video and msg.video.file_size <= MB_99)
         or (msg.audio and msg.audio.file_size <= MB_99)
         or (
             (msg.document and msg.document.file_size <= MB_99)
-            and not (msg.photo or msg.animation or msg.video or msg.audio)
+            and not (
+                msg.photo or msg.animation or msg.video or msg.audio or msg.sticker
+            )
         )
     )
