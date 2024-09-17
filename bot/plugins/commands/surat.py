@@ -8,12 +8,12 @@ from pyrogram import types as t
 @Client.on_message(filters.command(["surat"]) & ~filters.me)
 async def kirim_surat(c: Client, m: t.Message):
     abs_msg = utils.get_absolute_message(m)
-    msg_text = utils.get_text(m.text or m.caption)
+    msg_text = utils.get_text(m.text or m.caption or m.sticker.emoji)
     user = m.from_user
 
     if not msg_text:
         # if msg text or caption not included use the replied msg instead
-        msg_text = utils.get_text(abs_msg.text or abs_msg.caption)
+        msg_text = utils.get_text(abs_msg.text or abs_msg.caption or abs_msg.sticker.emoji)
         user = abs_msg.from_user
 
     media_ids = []
