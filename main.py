@@ -4,6 +4,12 @@ import os, asyncio
 from dotenv import load_dotenv
 
 
+def prepare():
+    load_dotenv()
+    if not os.path.exists("storage"):
+        os.makedirs("storage")
+
+
 async def main():
     bot = Bot(
         "storage/kurirsurat",
@@ -16,5 +22,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    prepare()
     asyncio.run(main())
