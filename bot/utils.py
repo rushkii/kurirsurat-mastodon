@@ -7,10 +7,12 @@ def get_text(text: str | None):
 
     split = text.split()
 
-    if len(split) < 2:
+    if len(split) == 1 and '/' in split[0]:
         return ""
+    elif len(split) > 1 and '/' in split[0]:
+        return text.replace(f"{split[0]} ", "")
 
-    return text.replace(f"{split[0]} ", "")
+    return text
 
 
 def get_full_name(user: t.User):
